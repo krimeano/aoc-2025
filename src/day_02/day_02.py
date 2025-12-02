@@ -45,18 +45,18 @@ def solve_2(text_input: str, debug=False) -> int:
         for ix in range(1 - d, h + 1):
             b = item[0][:ix] or '0'
             y = item[1][:ix + d]
-            # debug and print('   ', ix, ':', b, '..', y)
+            debug and print('   ', ix, ':', b, '..', y)
 
             for x in range(int(b) or 1, int(y) + 1):
-                # debug and print('       ', x)
+                debug and print('       ', x)
 
-                for jy in range(len(item[0]) // len(str(x)), len(item[1]) // (len(str(x)) or 1) + 1):
+                for jy in range(max(len(item[0]) // len(str(x)), 2), len(item[1]) // (len(str(x)) or 1) + 1):
                     invalid_id = int(''.join([str(x)] * jy))
-                    # debug and print('           x', jy, '->', invalid_id)
+                    debug and print('           x', jy, '->', invalid_id)
                     debug and print('           ?', a, '<=', invalid_id, '<=', z)
 
                     if a <= invalid_id <= z:
-                        if  invalid_id not in considered:
+                        if invalid_id not in considered:
                             result += invalid_id
                             considered.add(invalid_id)
                             debug and print('               ADDING', invalid_id)
@@ -77,4 +77,4 @@ if __name__ == '__main__':
 
     print('2:', end=' ')
     with open('../../input/day_02.txt', 'r') as f:
-        print(solve_2(f.read(), True))
+        print(solve_2(f.read(), False))
