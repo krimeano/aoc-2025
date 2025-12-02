@@ -1,4 +1,4 @@
-from .day_01_solution import solve_1, solve_2
+from .day_01 import solve_1, solve_2
 
 test_input = """
 L68
