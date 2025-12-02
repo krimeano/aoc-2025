@@ -1,4 +1,4 @@
-from .solution import solve
+from .solution import solve_1, solve_2
 
 test_input = """
 L68
@@ -14,5 +14,9 @@ L82
 """
 
 
-def test_solve():
-    assert solve(test_input, True) == 3
+def test_solve_1():
+    assert solve_1(test_input, True) == 3
+
+
+def test_solve_2():
+    assert solve_2(test_input, True) == 6

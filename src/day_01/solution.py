@@ -1,7 +1,7 @@
 start = 50
 
 
-def solve(text_input, debug=False):
+def solve_1(text_input, debug=False):
     debug and print()
     cur = start
     result = 0
@@ -16,6 +16,42 @@ def solve(text_input, debug=False):
     return result
 
 
+def solve_2(text_input, debug=False):
+    debug and print()
+    cur = start
+    last = cur
+    result = 0
+
+    for x in text_input.split('\n'):
+        x = x.strip()
+        if not x: continue
+        factor = x[0] == 'R' and 1 or -1
+        cur = cur + factor * int(x[1:])
+        debug and print(x, cur)
+
+        if cur < 0:
+            while cur < 0:
+                cur += 100
+                result += 1
+
+            if not last:
+                result -= 1
+
+        if not cur:
+            result += 1
+
+        while cur >= 100:
+            cur -= 100
+            result += 1
+
+        last = cur
+
+    return result
+
+
 if __name__ == '__main__':
     with open('../../input/day_01.txt', 'r') as f:
-        print(solve(f.read()))
+        print(solve_1(f.read()))
+
+    with open('../../input/day_01.txt', 'r') as f:
+        print(solve_2(f.read()))
