@@ -6,8 +6,8 @@ test_input = """11-22,95-115,998-1012,1188511880-1188511890,222220-222224,
 
 
 def test_solve_1():
-    assert solve_1(test_input, True) == 1227775554
+    assert solve_1(test_input, False) == 1227775554
 
 
 def test_solve_2():
-    assert solve_2('') == 0
+    assert solve_2(test_input, True) == 4174379265
