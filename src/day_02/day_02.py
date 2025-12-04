@@ -70,11 +70,11 @@ def get_items(text_input: str) -> list[list[str]]:
 if __name__ == '__main__':
     print('Day 02')
 
-    print('1:', end=' ')
+    with open('../../input/02.txt', 'r') as f:
+        file_contents = f.read()
 
-    with open('../../input/day_02.txt', 'r') as f:
-        print(solve_1(f.read(), False))
+    print('1:', end=' ')
+    print(solve_1(file_contents))
 
     print('2:', end=' ')
-    with open('../../input/day_02.txt', 'r') as f:
-        print(solve_2(f.read(), False))
+    print(solve_2(file_contents))

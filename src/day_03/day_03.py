@@ -53,11 +53,11 @@ def find_largest_joltage(batteries: list[int], size=12, debug=True) -> int:
 if __name__ == '__main__':
     print('Day 03')
 
-    with open('../../input/day_03.txt', 'r') as f:
+    with open('../../input/03.txt', 'r') as f:
         file_contents = f.read()
 
     print('1:')
-    print(solve_1(file_contents, False))
+    print(solve_1(file_contents))
 
     print('2:')
-    print(solve_2(file_contents, False))
+    print(solve_2(file_contents))

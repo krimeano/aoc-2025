@@ -50,8 +50,10 @@ def solve_2(text_input, debug=False):
 
 
 if __name__ == '__main__':
-    with open('../../input/day_01.txt', 'r') as f:
-        print(solve_1(f.read()))
+    print('Day 01')
 
-    with open('../../input/day_01.txt', 'r') as f:
-        print(solve_2(f.read()))
+    with open('../../input/01.txt', 'r') as f:
+        file_contents = f.read()
+
+    print(solve_1(file_contents))
+    print(solve_2(file_contents))
