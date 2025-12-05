@@ -32,7 +32,44 @@ def solve_1(text_input: str, debug=False) -> int:
 
 def solve_2(text_input: str, debug=False) -> int:
     debug and print()
-    return 0
+    lines = text_input.splitlines()
+
+    ranges: list[tuple[int, int]] = []
+    result: list[tuple[int, int]] = []
+
+    for line in lines:
+        if not line:
+            break
+
+        az = [int(x.strip()) for x in line.split('-') if x]
+        ranges.append((az[0], az[1]))
+        continue
+
+    ranges = sorted(ranges)
+
+    if debug:
+        print()
+        for az in ranges:
+            print(az)
+
+    a, b = ranges.pop(0)
+
+    while ranges:
+        c, d = ranges.pop(0)
+        if c <= b:
+            b = max(b, d)
+        else:
+            result.append((a, b))
+            a, b = c, d
+    else:
+        result.append((a, b))
+
+    if debug:
+        print()
+        for az in result:
+            print(az)
+
+    return sum(z - a + 1 for (a, z) in result)
 
 
 if __name__ == '__main__':
