@@ -13,7 +13,7 @@ def solve_1(text_input: str, debug=False) -> int:
             current = int(row[ix])
             if op == '*':
                 value *= current
-            if op == '+':
+            else:
                 value += current
 
         result += value
@@ -23,7 +23,35 @@ def solve_1(text_input: str, debug=False) -> int:
 
 def solve_2(text_input: str, debug=False) -> int:
     debug and print()
-    return 0
+    result = 0
+    lines = text_input.splitlines()
+    operations = lines.pop()
+
+    op = ''
+    value = 0
+    for ix in range(len(operations)):
+        if operations[ix] != ' ':
+            op = operations[ix]
+            value = op == '*' and 1 or 0
+
+        current = 0
+
+        for line in lines:
+            if line[ix] != ' ':
+                current = current * 10 + int(line[ix])
+
+        if current:
+            if op == '*':
+                value *= current
+            else:
+                value += current
+        else:
+            result += value
+
+    else:
+        result += value
+
+    return result
 
 
 if __name__ == '__main__':
