@@ -24,4 +24,4 @@ def test_solve_1():
 
 
 def test_solve_2():
-    assert solve_2(test_input, True) == 0
+    assert solve_2(test_input, True) == 40

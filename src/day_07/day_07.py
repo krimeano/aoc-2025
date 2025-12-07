@@ -1,4 +1,4 @@
-def solve_1(text_input: str, debug=False) -> int:
+def solve_1(text_input: str, debug=False, part_2=False) -> int:
     debug and print()
 
     lines = text_input.splitlines()
@@ -9,30 +9,36 @@ def solve_1(text_input: str, debug=False) -> int:
 
     width = height and len(lines[0])
 
-    ignited: set[tuple[int, int]] = set()
-    wave: list[tuple[int, int, str]] = []
     result = 0
+    ignited: dict[tuple[int, int], int] = {}
+    wave: list[tuple[int, int, str]] = []
 
-    def radiate(kx, ly) -> int:
-        if kx < height and 0 <= ly < width and (kx, ly) not in ignited:
-            cell = lines[kx][ly]
-            ignited.add((kx, ly))
+    def radiate(kx, ly, density=1) -> int:
+        if not (kx < height and 0 <= ly < width):
+            return 0
+        cell = lines[kx][ly]
+
+        if cell == '^':
+            radiate(kx, ly - 1, density)
+            radiate(kx, ly + 1, density)
+            return 1
+
+        if (kx, ly) in ignited:
+            ignited[(kx, ly)] += density
+
+        else:
+            ignited[(kx, ly)] = density
             wave.append((kx, ly, cell))
-            return cell == '^'
+
         return 0
 
     for jy in range(width):
         if lines[0][jy] == 'S':
-            radiate(0, jy)
+            radiate(0, jy, 1)
 
     while wave:
         ix, jy, quant = wave.pop(0)
-
-        if quant == 'S' or quant == '.':
-            result += radiate(ix + 1, jy)
-        elif quant == '^':
-            result += radiate(ix, jy + 1)
-            result += radiate(ix, jy - 1)
+        result += radiate(ix + 1, jy, ignited[(ix, jy)])
 
     if debug:
         for ix in range(height):
@@ -42,12 +48,21 @@ def solve_1(text_input: str, debug=False) -> int:
                 else:
                     print(lines[ix][jy], end='')
             print()
+
+    debug and print(ignited)
+
+    if part_2:
+        result = 0
+        ix = height - 1
+        for jy in range(width):
+            if (ix, jy) in ignited:
+                result += ignited[(ix, jy)]
+
     return result
 
 
 def solve_2(text_input: str, debug=False) -> int:
-    debug and print()
-    return 0
+    return solve_1(text_input, debug, True)
 
 
 if __name__ == '__main__':
