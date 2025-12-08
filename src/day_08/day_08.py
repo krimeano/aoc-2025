@@ -43,6 +43,9 @@ def solve_1(text_input: str, debug=False, connections=1000) -> int:
         for la in visited:
             boxes_in_circuits[la] = visited
 
+        if len(visited) == size:
+            return boxes[ix][0] * boxes[jy][0]
+
     circuits: list[set[int]] = []
 
     debug and print()
@@ -65,53 +68,7 @@ def solve_1(text_input: str, debug=False, connections=1000) -> int:
 
 def solve_2(text_input: str, debug=False) -> int:
     debug and print()
-    boxes = [[int(y) for y in x.split(',')] for x in text_input.splitlines() if x]
-    size = len(boxes)
-    junctions: list[tuple[int, int, int]] = []
-
-    for ix in range(size - 1):
-        debug and print(boxes[ix])
-
-        for jy in range(ix + 1, size):
-            distance = sq_distance(boxes[ix], boxes[jy])
-            junctions.append((distance, ix, jy))
-    junctions.sort()
-
-    boxes_in_circuits: dict[int, set[int]] = {}
-    debug and print()
-
-    for kz in range(size * size):
-        ix = junctions[kz][1]
-        jy = junctions[kz][2]
-        debug and print(junctions[kz][0], boxes[ix], boxes[jy])
-
-        if ix not in boxes_in_circuits:
-            boxes_in_circuits[ix] = set()
-            boxes_in_circuits[ix].add(ix)
-
-        if jy in boxes_in_circuits[ix]:
-            debug and print('    ', 'already connected')
-            continue
-
-        boxes_in_circuits[ix].add(jy)
-
-        if jy not in boxes_in_circuits:
-            boxes_in_circuits[jy] = set()
-
-        visited = set()
-
-        for la in [ix, jy]:
-            visited.add(la)
-            for mb in boxes_in_circuits[la]:
-                visited.add(mb)
-
-        for la in visited:
-            boxes_in_circuits[la] = visited
-
-        if len(visited) == size:
-            return boxes[ix][0] * boxes[jy][0]
-
-    return 0
+    return solve_1(text_input, debug, 1000000)
 
 
 def sq_distance(box_a: list[int], box_b: list[int]) -> int:
