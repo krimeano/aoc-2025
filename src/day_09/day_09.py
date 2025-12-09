@@ -1,6 +1,16 @@
 def solve_1(text_input: str, debug=False) -> int:
     debug and print()
-    return 0
+    tiles = [tuple([int(y) for y in x.split(',')]) for x in text_input.splitlines() if x]
+    size = len(tiles)
+    result = 0
+    for ix in range(size - 1):
+        for iy in range(ix + 1, size):
+            x = tiles[ix]
+            y = tiles[iy]
+            current = (abs(x[0] - y[0]) + 1) * (abs(x[1] - y[1]) + 1)
+            if current > result:
+                result = current
+    return result
 
 
 def solve_2(text_input: str, debug=False) -> int:
