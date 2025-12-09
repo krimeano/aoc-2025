@@ -25,20 +25,20 @@ def solve_2(text_input: str, debug=False) -> int:
             continue
         x, y = [int(z) for z in line.split(',')]
         corners.append((x, y))
-        print(x, y)
+        debug and print(x, y)
 
     uu, xx = unzipped_coord_indexes([xy[0] for xy in corners])
     vv, yy = unzipped_coord_indexes([xy[1] for xy in corners])
     x_to_u = dict(zip(xx, uu))
-    u_to_x = dict(zip(vv, xx))
+    u_to_x = dict(zip(uu, xx))
     y_to_v = dict(zip(yy, vv))
     v_to_y = dict(zip(vv, yy))
 
-    print(u_to_x)
-    print(v_to_y)
+    debug and print(u_to_x)
+    debug and print(v_to_y)
     squeezed_corners = [(x_to_u[x], y_to_v[y]) for x, y in corners]
-    print(corners)
-    print(squeezed_corners)
+    debug and print(corners)
+    debug and print(squeezed_corners)
     tiles = [['.' for __ in range(max(uu) + 2)] for _ in range(max(vv) + 2)]
 
     s, t = squeezed_corners[0]
@@ -54,7 +54,7 @@ def solve_2(text_input: str, debug=False) -> int:
         x = s + dx
         y = t + dy
 
-        print((s, t), (x, y), (dx, dy), (u, v))
+        debug and print((s, t), (x, y), (dx, dy), (u, v))
 
         while x != u or y != v:
             tiles[y][x] = 'X'
@@ -62,12 +62,12 @@ def solve_2(text_input: str, debug=False) -> int:
             y = y + dy
 
         s, t = u, v
-    print(min_y_corners)
+    debug and print(min_y_corners)
     x, y = (min_y_corners[0][0] + min_y_corners[1][0]) // 2, 2
     tiles[y][x] = 'Y'
     wave = [(x, y)]
     while wave:
-        print(wave)
+        debug and print(wave)
         x0, y0 = wave.pop(0)
         for dx, dy in neighbours_shifts:
             x, y = x0 + dx, y0 + dy
@@ -75,8 +75,26 @@ def solve_2(text_input: str, debug=False) -> int:
                 continue
             tiles[y][x] = 'Y'
             wave.append((x, y))
-    print_tiles(tiles)
-    return 0
+
+    debug and print_tiles(tiles)
+
+    size = len(squeezed_corners)
+
+    result = 0
+
+    for ix in range(size - 1):
+        for iy in range(ix + 1, size):
+            a = squeezed_corners[ix]
+            b = squeezed_corners[iy]
+
+            if not check_perimeter(a, b, tiles):
+                continue
+            current = (abs(u_to_x[a[0]] - u_to_x[b[0]]) + 1) * (abs(v_to_y[a[1]] - v_to_y[b[1]]) + 1)
+
+            if current > result:
+                result = current
+
+    return result
 
 
 def unzipped_coord_indexes(values: list[int]) -> tuple[list[int], list[int]]:
@@ -110,6 +128,27 @@ def print_tiles(tiles: list[list[str]]):
     with open('./out_09.txt', 'w') as g:
         print('WRITING TO FILE')
         g.writelines([''.join(row) + '\n' for row in tiles])
+
+
+def check_perimeter(a: tuple[int, int], b: tuple[int, int], tiles: list[list[str]]) -> bool:
+    s, t = a
+    u, v = b
+    x0 = min(s, u)
+    x1 = max(s, u)
+    y0 = min(t, v)
+    y1 = max(t, v)
+
+    for x in range(x0 + 1, x1):
+        for y in [y0, y1]:
+            if tiles[y][x] == '.':
+                return False
+
+    for x in [x0, x1]:
+        for y in range(y0 + 1, y1):
+            if tiles[y][x] == '.':
+                return False
+
+    return True
 
 
 if __name__ == '__main__':
