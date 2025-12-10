@@ -27,11 +27,14 @@ def test_parse_button():
 
 
 def test_solve_1():
-    assert solve_1("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}", True) == 2
-    assert solve_1("[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}", True) == 3
-    assert solve_1("[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}", True) == 2
-    assert solve_1(test_input, True) == 7
+    assert solve_1("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}", False) == 2
+    assert solve_1("[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}", False) == 3
+    assert solve_1("[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}", False) == 2
+    assert solve_1(test_input, False) == 7
 
 
 def test_solve_2():
-    assert solve_2(test_input, True) == 0
+    assert solve_2("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}", True) == 10
+    assert solve_2("[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}", True) == 12
+    assert solve_2("[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}", True) == 11
+    assert solve_2(test_input, True) == 33

@@ -6,14 +6,22 @@ def solve_1(text_input: str, debug=False) -> int:
         if not line:
             continue
         lights, buttons, tail = parse_line(line)
-        result += push_buttons(lights, buttons, debug=debug)
+        result += push_buttons_to_set_level(lights, buttons, debug=debug)
 
     return result
 
 
 def solve_2(text_input: str, debug=False) -> int:
     debug and print()
-    return 0
+    result = 0
+
+    for line in text_input.splitlines():
+        if not line:
+            continue
+        lights, buttons, tail = parse_line(line)
+        result += push_buttons_to_set_counters(buttons, tail, debug=debug)
+
+    return result
 
 
 def parse_line(line: str, debug=False) -> tuple[int, list[int], list[int]]:
@@ -50,10 +58,10 @@ def parse_tail(tail: str) -> list[int]:
     return [int(x) for x in tail.split(',')]
 
 
-def push_buttons(lights: int, buttons: list[int], debug=False) -> int:
+def push_buttons_to_set_level(lights: int, buttons: list[int], debug=False) -> int:
     debug and print(lights, buttons)
-    visited_states = {lights}
 
+    visited_states = {lights}
     new_states = [lights]
     pushes = 0
 
@@ -79,6 +87,55 @@ def push_buttons(lights: int, buttons: list[int], debug=False) -> int:
     return -1
 
 
+def push_buttons_to_set_counters(buttons: list[int], levels: list[int], debug=False) -> int:
+    target = tuple(levels)
+    debug and print(buttons, target)
+    start = tuple([0 for _ in target])
+
+    visited_states = {start}
+    new_states = [start]
+    pushes = 0
+
+    while new_states:
+        states = new_states
+        debug and print('    ', len(states))
+
+        new_states = []
+
+        pushes += 1
+
+        while states:
+            state = states.pop()
+
+            for button in buttons:
+                new_state_list = [x for x in state]
+
+                ix = 0
+                while button:
+                    x = button & 1
+                    new_state_list[ix] += x
+
+                    ix += 1
+                    button = button >> 1
+
+                new_state = tuple(new_state_list)
+
+                if new_state == target:
+                    return pushes
+
+                if new_state in visited_states:
+                    continue
+
+                if 1 in [new_state[ix] - target[ix] for ix in range(len(target))]:
+                    # some counter is over the target
+                    continue
+
+                visited_states.add(new_state)
+                new_states.append(new_state)
+
+    return -1
+
+
 if __name__ == '__main__':
     print('Day 10')
 
@@ -89,4 +146,4 @@ if __name__ == '__main__':
     print(solve_1(file_contents))
 
     print('2:')
-    print(solve_2(file_contents))
+    print(solve_2(file_contents, True))
