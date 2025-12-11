@@ -17,5 +17,20 @@ def test_solve_1():
     assert solve_1(test_input, True) == 5
 
 
+test_input_2 = """svr: aaa bbb
+aaa: fft
+fft: ccc
+bbb: tty
+tty: ccc
+ccc: ddd eee
+ddd: hub
+hub: fff
+eee: dac
+dac: fff
+fff: ggg hhh
+ggg: out
+hhh: out"""
+
+
 def test_solve_2():
-    assert solve_2(test_input, True) == 0
+    assert solve_2(test_input_2, True) == 2
