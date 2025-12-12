@@ -88,68 +88,88 @@ def solve_2(text_input: str, debug=False) -> int:
         parts.pop(0)
         target_levels = parse_tail(parts.pop())
         buttons = [tuple([int(y) for y in x[1:-1].split(',')]) for x in parts]
-        buttons.sort()
-        # buttons.sort(key=lambda x: len(x), reverse=True)
-        debug and print(buttons, target_levels)
-        width = len(target_levels)
-        buttons_per_target = [0] * width
-        for button in buttons:
-            for ix in button:
-                buttons_per_target[ix] += 1
-        result += calculate_pushes(buttons, target_levels, buttons_per_target, debug=debug)
-
+        width = len(buttons)
+        height = len(target_levels)
+        debug and print(height, buttons, target_levels)
+        matrix = [[ix in buttons[jy] and 1 or 0 for jy in range(width)] + [target_levels[ix]] for ix in range(height)]
+        make_matrix_triangle(matrix)
     return result
 
 
-def calculate_pushes(buttons: list[tuple[int, ...]], target_levels: list[int], buttons_per_target: list[int], already_pressed=0, debug=False, found_min_result=inf):
-    # debug and print(target_levels, buttons_per_target, buttons)
-    width = len(target_levels)
-    height = len(buttons)
+def make_matrix_triangle(matrix0: list[list[int]]) -> list[list[int]]:
+    print('make_matrix_triangle')
+    height = len(matrix0)
+    if not height:
+        return []
+    width = len(matrix0[0])
+    if not width:
+        return []
 
-    min_target_ix = -1
-    min_buttons = inf
-    for ix in range(width):
-        if buttons_per_target[ix]:
-            if buttons_per_target[ix] < min_buttons:
-                min_buttons = buttons_per_target[ix]
-                min_target_ix = ix
-        elif target_levels[ix]:
-            # no buttons left to press to reach the target level
-            return -1
+    matrix = [[y for y in x] for x in matrix0]
 
-    if min_buttons == inf:
-        # no buttons and no targets: success
-        return already_pressed
+    if height == 1 or width == 1:
+        print('vector', matrix[0])
+        return matrix
 
-    button_ix = -1
-    for jy in range(height):
-        if min_target_ix in buttons[jy]:
-            button_ix = jy
-            break
+    print_matrix(matrix)
+    matrix = move_smallest_column(matrix)
+    print_matrix(matrix)
 
-    current_button = buttons[button_ix]
-    rest_buttons = buttons[:button_ix] + buttons[button_ix + 1:]
-    new_buttons_per_target = [buttons_per_target[ix] - (ix in current_button and 1 or 0) for ix in range(width)]
-    min_target = inf
+    processed = height
 
-    for ix in current_button:
-        min_target = min(min_target, target_levels[ix])
+    while processed:
+        processed = 0
 
-    min_result = found_min_result
+        matrix.sort(key=lambda xx: abs(xx[0]))
+        matrix.sort(key=lambda xx: xx[0] == 0)
+        print_matrix(matrix)
 
-    values = (min_buttons == 1) and [min_target] or [ix for ix in range(min_target + 1)]
+        first_row = matrix[0]
+        a = first_row[0]
 
-    for value in values:
-        new_targets = [target_levels[ix] - (ix in current_button and value or 0) for ix in range(width)]
-        if already_pressed + value >= min_result:
-            continue
+        if not a:
+            raise 'DIVISION TO ZERO'
 
-        result = calculate_pushes(rest_buttons, new_targets, new_buttons_per_target, already_pressed + value, min_result)
+        for ix in range(1, height):
+            b = matrix[ix][0]
+            if not b:
+                break
+            processed += 1
+            n = b // a
+            for jy in range(width):
+                matrix[ix][jy] = matrix[ix][jy] - n * first_row[jy]
+    print_matrix(matrix)
+    sub_matrix = make_matrix_triangle([[y for y in x[1:]] for x in matrix[1:]])
+    return []
 
-        if 0 < result < min_result:
-            min_result = result
 
-    return min_result
+def print_matrix(matrix: list[list[int]]) -> None:
+    width = len(matrix[0])
+    print('-' * width * 3)
+    for ix in range(len(matrix)):
+        print(matrix[ix])
+    print('-' * width * 3)
+
+
+def move_smallest_column(matrix: list[list[int]]) -> list[list[int]]:
+    width = len(matrix[0])
+    height = len(matrix)
+
+    min_ix = -1
+    min_value = height
+    min_total = inf
+
+    for ix in range(width - 1):
+        value = sum([matrix[jy][ix] != 0 for jy in range(height)])
+        total = sum([abs(matrix[jy][ix]) for jy in range(height)])
+        if 0 < value < min_value or (value == min_value and total < min_total):
+            min_value = value
+            min_ix = ix
+
+    if min_ix < 1:
+        return matrix
+
+    return [[row[min_ix]] + row[:min_ix] + row[min_ix + 1:] for row in matrix]
 
 
 if __name__ == '__main__':
