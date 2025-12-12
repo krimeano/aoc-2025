@@ -89,19 +89,20 @@ def solve_2(text_input: str, debug=False) -> int:
         target_levels = parse_tail(parts.pop())
         buttons = [tuple([int(y) for y in x[1:-1].split(',')]) for x in parts]
         buttons.sort()
-        buttons.sort(key=lambda x: len(x), reverse=True)
+        # buttons.sort(key=lambda x: len(x), reverse=True)
         debug and print(buttons, target_levels)
         width = len(target_levels)
         buttons_per_target = [0] * width
         for button in buttons:
             for ix in button:
                 buttons_per_target[ix] += 1
-        result += calculate_pushes(buttons, target_levels, buttons_per_target)
+        result += calculate_pushes(buttons, target_levels, buttons_per_target, debug=debug)
 
     return result
 
 
-def calculate_pushes(buttons: list[tuple[int, ...]], target_levels: list[int], buttons_per_target: list[int], already_pressed=0):
+def calculate_pushes(buttons: list[tuple[int, ...]], target_levels: list[int], buttons_per_target: list[int], already_pressed=0, debug=False, found_min_result=inf):
+    # debug and print(target_levels, buttons_per_target, buttons)
     width = len(target_levels)
     height = len(buttons)
 
@@ -134,17 +135,21 @@ def calculate_pushes(buttons: list[tuple[int, ...]], target_levels: list[int], b
     for ix in current_button:
         min_target = min(min_target, target_levels[ix])
 
-    results = []
+    min_result = found_min_result
 
-    values = min_buttons == 1 and [min_target] or [ix for ix in range(min_target + 1)]
+    values = (min_buttons == 1) and [min_target] or [ix for ix in range(min_target + 1)]
 
     for value in values:
         new_targets = [target_levels[ix] - (ix in current_button and value or 0) for ix in range(width)]
-        result = calculate_pushes(rest_buttons, new_targets, new_buttons_per_target, already_pressed + value)
-        if result > 0:
-            results.append(result)
+        if already_pressed + value >= min_result:
+            continue
 
-    return results and min(results) or -1
+        result = calculate_pushes(rest_buttons, new_targets, new_buttons_per_target, already_pressed + value, min_result)
+
+        if 0 < result < min_result:
+            min_result = result
+
+    return min_result
 
 
 if __name__ == '__main__':
