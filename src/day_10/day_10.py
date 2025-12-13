@@ -92,55 +92,70 @@ def solve_2(text_input: str, debug=False) -> int:
         height = len(target_levels)
         debug and print(height, buttons, target_levels)
         matrix = [[ix in buttons[jy] and 1 or 0 for jy in range(width)] + [target_levels[ix]] for ix in range(height)]
-        make_matrix_triangle(matrix)
+        triangle = make_matrix_triangle(matrix)
+        result += calculate_matrix(triangle)
     return result
 
 
-def make_matrix_triangle(matrix0: list[list[int]]) -> list[list[int]]:
-    print('make_matrix_triangle')
+def make_matrix_triangle(matrix0: list[list[int]], corner=0) -> list[list[int]]:
+    # print('make_matrix_triangle', corner)
     height = len(matrix0)
-    if not height:
-        return []
+    if not height - corner:
+        return matrix0
     width = len(matrix0[0])
-    if not width:
-        return []
+    if not width - corner:
+        return matrix0
 
     matrix = [[y for y in x] for x in matrix0]
 
-    if height == 1 or width == 1:
-        print('vector', matrix[0])
+    if width - corner == 1:
+        # print('vector', [[matrix[ix][jy] for jy in range(corner, width)] for ix in range(corner, height)])
         return matrix
 
-    print_matrix(matrix)
-    matrix = move_smallest_column(matrix)
-    print_matrix(matrix)
+    # print_matrix(matrix)
+    matrix = move_smallest_column(matrix, corner)
+    # print_matrix(matrix)
+    if height - corner == 1:
+        return matrix
 
-    processed = height
+    processed = height - corner
 
     while processed:
         processed = 0
+        top = matrix[:corner]
+        bottom = matrix[corner:]
+        bottom.sort(key=lambda xx: abs(xx[corner]))
+        bottom.sort(key=lambda xx: xx[corner] == 0)
+        matrix = top + bottom
 
-        matrix.sort(key=lambda xx: abs(xx[0]))
-        matrix.sort(key=lambda xx: xx[0] == 0)
-        print_matrix(matrix)
+        # print('sorted', corner)
+        # print_matrix(matrix)
 
-        first_row = matrix[0]
-        a = first_row[0]
+        first_row = matrix[corner]
+        a = first_row[corner]
 
         if not a:
-            raise 'DIVISION TO ZERO'
+            # print_matrix(matrix)
+            print('DIVISION BY ZERO!')
+            return matrix
 
-        for ix in range(1, height):
-            b = matrix[ix][0]
+        for ix in range(corner + 1, height):
+            b = matrix[ix][corner]
             if not b:
                 break
             processed += 1
             n = b // a
-            for jy in range(width):
+            for jy in range(corner, width):
                 matrix[ix][jy] = matrix[ix][jy] - n * first_row[jy]
-    print_matrix(matrix)
-    sub_matrix = make_matrix_triangle([[y for y in x[1:]] for x in matrix[1:]])
-    return []
+    # print_matrix(matrix)
+    matrix = make_matrix_triangle(matrix, corner + 1)
+    for ix in range(corner + 1, min(width, height)):
+        if matrix[corner][ix] and matrix[ix][ix]:
+            n = matrix[corner][ix] // matrix[ix][ix]
+            for jy in range(ix, width):
+                matrix[corner][jy] = matrix[corner][jy] - n * matrix[ix][jy]
+
+    return matrix
 
 
 def print_matrix(matrix: list[list[int]]) -> None:
@@ -151,7 +166,7 @@ def print_matrix(matrix: list[list[int]]) -> None:
     print('-' * width * 3)
 
 
-def move_smallest_column(matrix: list[list[int]]) -> list[list[int]]:
+def move_smallest_column(matrix: list[list[int]], corner=0) -> list[list[int]]:
     width = len(matrix[0])
     height = len(matrix)
 
@@ -159,9 +174,10 @@ def move_smallest_column(matrix: list[list[int]]) -> list[list[int]]:
     min_value = height
     min_total = inf
 
-    for ix in range(width - 1):
-        value = sum([matrix[jy][ix] != 0 for jy in range(height)])
-        total = sum([abs(matrix[jy][ix]) for jy in range(height)])
+    for ix in range(corner, width - 1):
+        value = sum([matrix[jy][ix] != 0 for jy in range(corner, height)])
+        total = sum([abs(matrix[jy][ix]) for jy in range(corner, height)])
+
         if 0 < value < min_value or (value == min_value and total < min_total):
             min_value = value
             min_ix = ix
@@ -169,7 +185,22 @@ def move_smallest_column(matrix: list[list[int]]) -> list[list[int]]:
     if min_ix < 1:
         return matrix
 
-    return [[row[min_ix]] + row[:min_ix] + row[min_ix + 1:] for row in matrix]
+    matrix = [row[:corner] + [row[min_ix]] + row[corner + 1:min_ix] + [row[corner + 1]] + row[min_ix + 1:] for row in matrix]
+    for row in matrix:
+        row[-1] = -row[-1]
+    return matrix
+
+
+def calculate_matrix(matrix0: list[list[int]]) -> int:
+    print('calculating matrix')
+    print_matrix(matrix0)
+    matrix = [[y for y in x] for x in matrix0 if sum([abs(y) for y in x])]
+    for ix in range(min(len(matrix), len(matrix[0]))):
+        if matrix[ix][ix] < 0:
+            for jy in range(ix, len(matrix[0])):
+                matrix[ix][jy] = -matrix[ix][jy]
+    print_matrix(matrix)
+    return 0
 
 
 if __name__ == '__main__':
