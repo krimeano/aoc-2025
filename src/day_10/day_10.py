@@ -86,16 +86,15 @@ def solve_2(text_input: str, debug=False) -> int:
         target_levels = parse_tail(parts.pop())
         buttons = [tuple([int(y) for y in x[1:-1].split(',')]) for x in parts]
         buttons.sort()
-        buttons.sort(key=lambda x: len(x))
+        buttons.sort(key=lambda x: len(x), reverse=True)
         width = len(buttons)
         height = len(target_levels)
         debug and print(height, buttons, target_levels)
         matrix = [[ix in buttons[jy] and 1 or 0 for jy in range(width)] + [target_levels[ix]] for ix in range(height)]
+        print_matrix(matrix)
         triangle, fixed = make_matrix_triangle(matrix)
-        # print_matrix(triangle)
-        reduced = reduce_matrix(triangle, fixed)
         print(fixed)
-        print_matrix(reduced)
+        print_matrix(triangle)
     return result
 
 
@@ -131,13 +130,19 @@ def make_matrix_triangle(matrix0: list[list[int]], fixed: tuple[int, ...] = ()) 
         smallest_row = matrix[ix0]
         a = smallest_row[fix_col]
 
-        for ix in row_indexes:
+        for ix in range(height):
+            if ix == ix0:
+                continue
+
             row = matrix[ix]
-            b = row[fix_col]
-            n = b // a
+            n = row[fix_col] // a
+
+            if not n:
+                continue
 
             for jy in range(fix_col, width):
                 row[jy] -= n * smallest_row[jy]
+
         row_indexes = find_not_empty_rows_for_fix_col(matrix, fixed)
 
     fix_row = row_indexes.pop(0)
@@ -147,41 +152,11 @@ def make_matrix_triangle(matrix0: list[list[int]], fixed: tuple[int, ...] = ()) 
     return matrix, fixed
 
 
-def reduce_matrix(matrix: list[list[int]], fixed: tuple[int, ...]) -> list[list[int]]:
-    width = len(matrix) and len(matrix[0])
-    for jy0 in range(len(fixed) - 1, -1, -1):
-        ix0 = fixed[jy0]
-
-        if ix0 == -1:
-            continue
-
-        current_row = matrix[ix0]
-        a = current_row[jy0]
-
-        for jy1 in range(jy0):
-            ix = fixed[jy1]
-
-            if ix == -1:
-                continue
-
-            row = matrix[ix]
-            b = row[jy0]
-
-            if not b:
-                continue
-            n = b // a
-
-            for kz in range(jy0, width):
-                row[kz] -= n * current_row[kz]
-
-    return matrix
-
-
 def find_not_empty_rows_for_fix_col(matrix: list[list[int]], fixed: tuple[int, ...]) -> list[int]:
     height = len(matrix)
     fix_col = len(fixed)
     out = [ix for ix in range(height) if ix not in fixed and matrix[ix][fix_col] != 0]
-    out.sort(key=lambda ix: abs(matrix[ix][-1]))
+    out.sort(key=lambda ix: abs(matrix[ix][-1]), reverse=True)
     out.sort(key=lambda ix: abs(matrix[ix][fix_col]))
     # print('find_not_empty_rows_for_fix_col: ', fixed, '->', out)
     return out
