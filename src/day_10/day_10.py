@@ -1,3 +1,8 @@
+import math
+
+from matrix import Matrix
+
+
 def solve_1(text_input: str, debug=False) -> int:
     debug and print()
     result = 0
@@ -91,83 +96,43 @@ def solve_2(text_input: str, debug=False) -> int:
         height = len(target_levels)
         debug and print(height, buttons, target_levels)
         matrix = [[ix in buttons[jy] and 1 or 0 for jy in range(width)] + [target_levels[ix]] for ix in range(height)]
-        print_matrix(matrix)
-        triangle, fixed = make_matrix_triangle(matrix)
-        print(fixed)
-        print_matrix(triangle)
+        print(Matrix.to_str(matrix))
+        solved = Matrix.solve(matrix)
+        print(Matrix.to_str(solved))
+        result += solve_params(solved)
     return result
 
 
-def make_matrix_triangle(matrix0: list[list[int]], fixed: tuple[int, ...] = ()) -> tuple[list[list[int]], tuple[int, ...]]:
-    # print('make_matrix_triangle')
-    # print_matrix(matrix0)
-    height = len(matrix0)
-    fix_col = len(fixed)
-    skipped_cols = len([ix for ix in fixed if ix == -1])
+def solve_params(xxx: list[list[int]]) -> int:
+    rank = len(xxx)
+    width = len(xxx[0]) - 1
 
-    if not height - fix_col + skipped_cols:
-        # we still want to sort horizontal vector
-        return matrix0, fixed
+    if rank == width:
+        return sum([xx[-1] for xx in xxx])
 
-    width = len(matrix0[0])
+    max_xx = [math.inf] * (width - rank)
 
-    if width - fix_col < 2:
-        # 0 - empty matrix
-        # 1 - vertical vector
-        return matrix0, fixed
-
-    # look for not empty smallest item in vertical
-    columns_rotated = 0
-    row_indexes = find_not_empty_rows_for_fix_col(matrix0, fixed)
-
-    if not row_indexes:
-        return make_matrix_triangle(matrix0, tuple([x for x in fixed] + [-1]))
-
-    matrix = [[y for y in x] for x in matrix0]
-
-    while len(row_indexes) > 1:
-        ix0 = row_indexes.pop(0)
-        smallest_row = matrix[ix0]
-        a = smallest_row[fix_col]
-
-        for ix in range(height):
-            if ix == ix0:
+    sum_xx = [-1, -1, 0]
+    for xx in xxx:
+        sum_xx[-1] += xx[-1]
+        for ix in range(rank, width):
+            sum_xx[ix - rank] += xx[ix]
+            if not xx[ix]:
                 continue
 
-            row = matrix[ix]
-            n = row[fix_col] // a
+            if xx[ix] * xx[-1] > 0:
+                max_xx[ix - rank] = min(max_xx[ix - rank], xx[ix] * xx[-1])
+            else:
+                max_xx[ix - rank] = 0
 
-            if not n:
-                continue
+    print(max_xx)
+    print(sum_xx)
+    result = sum_xx[-1]
 
-            for jy in range(fix_col, width):
-                row[jy] -= n * smallest_row[jy]
-
-        row_indexes = find_not_empty_rows_for_fix_col(matrix, fixed)
-
-    fix_row = row_indexes.pop(0)
-
-    matrix, fixed = make_matrix_triangle(matrix, tuple([x for x in fixed] + [fix_row]))
-
-    return matrix, fixed
-
-
-def find_not_empty_rows_for_fix_col(matrix: list[list[int]], fixed: tuple[int, ...]) -> list[int]:
-    height = len(matrix)
-    fix_col = len(fixed)
-    out = [ix for ix in range(height) if ix not in fixed and matrix[ix][fix_col] != 0]
-    out.sort(key=lambda ix: abs(matrix[ix][-1]), reverse=True)
-    out.sort(key=lambda ix: abs(matrix[ix][fix_col]))
-    # print('find_not_empty_rows_for_fix_col: ', fixed, '->', out)
-    return out
-
-
-def print_matrix(matrix: list[list[int]]) -> None:
-    width = len(matrix[0])
-    print('-' * width * 3)
-    for ix in range(len(matrix)):
-        print(matrix[ix])
-    print('-' * width * 3)
+    for ix in range(len(max_xx)):
+        if sum_xx[ix] > 0:
+            result -= sum_xx[ix] - max_xx[ix]
+    return result
 
 
 if __name__ == '__main__':

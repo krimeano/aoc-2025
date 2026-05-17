@@ -298,8 +298,8 @@ class Mx:
         return f'Mx({self.xxx!r})'
 
     def __str__(self):
-        max_w = max([max([len(str(element)) for element in row]) for row in self.xxx])
-        return '\n' + '\n'.join(' '.join('{{0:{0}}}'.format(max_w).format(element) for element in row) for row in self.xxx)
+        max_w = max([max([len(str(x)) for x in xx]) for xx in self.xxx])
+        return '\n' + '\n'.join(' '.join('{{0:{0}}}'.format(max_w).format(x) for x in xx) for xx in self.xxx)
 
     @staticmethod
     def is_matrix(xxx: list[list[int]]) -> bool:
